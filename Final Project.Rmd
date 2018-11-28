@@ -1,0 +1,69 @@
+---
+title: "Final Project"
+author: "Annika Engstrom"
+date: "10/19/2018"
+output: html_document
+---
+
+```{r setup, include=FALSE, echo = FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(knitr)
+library(dplyr)
+library(readxl)
+library(ggplot2)
+library(foreign)
+library(shiny)
+library(rsconnect)
+library(readr)
+```
+
+```{r message = FALSE, cache = TRUE}
+
+## download.file("http://gss.norc.org/documents/spss/GSS_spss.zip", "GSS_spss.zip", quiet = TRUE)
+
+## unzip("GSS_spss.zip")
+
+gss <- read.spss("GSS7216_R4.sav", to.data.frame = TRUE)
+write_rds(gss, "data.rds")
+
+delete.file("GSS7216_R4.sav")
+
+glimpse(gss)
+
+#For this project, I only want to look at the last 30 years, ie. 1988-2018
+gss1 <- gss %>%
+  filter(YEAR >= 1988) %>%
+  select(ID, YEAR, AGE, MARITAL, SEX, INCOME, SATCITY, MARHOMO, SPKHOMO, COLHOMO, LIBHOMO, RELIG, LIBTEMP, CONTEMP, MSLMTEMP) %>%
+  arrange(ID)
+
+runApp("Final Project")  
+
+ui <- fluidPage(
+  sidebarLayout(
+    sidebarPanel(
+      selectInput(inputID = "y",
+                  label = "Y-axis:",
+                  choices = c("MARHOMO", "COLHOMO", "LIBHOMO"),
+                  selected = "MARHOMO"),
+      selectInput(inputID = "x",
+                  label = "X-axis:",
+                  choices = c("YEAR", "AGE", "MARITAL", "SEX", "INCOME", "SATCITY"),
+                  selected = "YEAR")
+    ),
+    
+    mainPanel(
+      plotOutput(outputId = "scatterplot")
+    )
+  )
+)
+
+server <- function(input, output) {
+  
+  output$scatterplot <- renderPlot({
+    ggplot(data = gss1, aes_string(x = input$x, y = input$y)) +
+      geom_point()
+  })
+}
+
+shinyApp(ui = ui, server = server)  
+```
