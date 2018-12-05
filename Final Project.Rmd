@@ -29,12 +29,15 @@ gss <- read.spss("GSS7216_R4.sav", to.data.frame = TRUE)
 gss1 <- gss %>%
   filter(YEAR >= 1988) %>%
   select(ID, YEAR, AGE, MARITAL, SEX, INCOME, SATCITY, MARHOMO, SPKHOMO, COLHOMO, LIBHOMO, RELIG, LIBTEMP, CONTEMP, MSLMTEMP) %>%
+  filter(!is.na(MARHOMO)) %>%
+  filter(!is.na(SPKHOMO)) %>%
+  filter(!is.na(COLHOMO)) %>%
+  filter(!is.na(LIBHOMO)) %>%
+  filter(!is.na(SEX)) %>%
+  filter(!is.na(MARITAL)) %>%
+  filter(!is.na(INCOME)) %>%
+  filter(!is.na(YEAR)) %>%
   arrange(ID)
-
-as.numeric(gss1$MARHOMO)
-as.numeric(gss1$SPKHOMO)
-as.numeric(gss1$COLHOMO)
-as.numeric(gss1$LIBHOMO)
 
 write_rds(gss1, "data1.rds")
 

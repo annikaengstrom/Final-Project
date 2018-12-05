@@ -17,20 +17,20 @@ gss1 <- readRDS("data1.rds")
 ui <- fluidPage(
   
   h1("Sentiments towards homosexuals of different societal niches"),
-  h2("The graph below allows you to choose between different variables and see which demographics of people have different views about gay rights issues"),
-  
+  "The graph below allows you to choose between different variables and see which demographics of people have different views about gay rights issues.",
+  br(),
+  br(),
   # Sidebar with a slider input for axis inputs 
   sidebarLayout(
     sidebarPanel(
       
       selectInput(inputId = "x", 
                   label = "X-axis:",
-                  choices = c("Year" = "YEAR", 
-                              "Marital" = "MARITAL", 
+                  choices = c("Marital" = "MARITAL", 
                               "Age" = "AGE", 
                               "Sex" = "SEX", 
                               "Income" = "INCOME"), 
-                  selected = "YEAR"),
+                  selected = "AGE"),
       
       # Select variable for y axis
       selectInput(inputId = "y", 
@@ -44,7 +44,13 @@ ui <- fluidPage(
     
     # Show a plot of the generated distribution
     mainPanel(
-      plotOutput(outputId = "scatterplot")
+      tabsetPanel(type = "tabs",
+        tabPanel(title = "Plot",
+                 plotOutput(outputId = "scatterplot")),
+        tabPanel(title = "Summary",
+                 h5("In this analysis, I have concluded that young age increases the liklihood that someone will strongly agree that homosexuals should have the right to marry. It is also worth noting that in sentiments between Strongly Agree and Strongly Disagree, the effect of age is not as visible.
+                    "))
+      )
     )
   )
 )
@@ -56,7 +62,7 @@ server <- function(input, output) {
       read_rds("data1.rds") %>% 
       ggplot(aes_string(x = input$x, y = input$y)) + 
       geom_jitter(alpha = 0.1) +
-      xlab("Year") +
+      xlab("Demographic") +
       ylab("Factor") +
       ggtitle("Homosexuality Sentiment Scores")
   })
