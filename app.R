@@ -11,15 +11,13 @@ library(shiny)
 library(tidyverse)
 library(tidytext)
 library(readr)
-gss <- readRDS("data.rds")
+gss1 <- readRDS("data1.rds")
 
 # Define UI for application that draws a scatterplot
 ui <- fluidPage(
   
-  "The graph below allows you to choose between different variables and see which demographics of people have different views about gay rights issues",
-  
-  # Application title
-  titlePanel("Sentiments towards homosexuals of different societal niches"),
+  h1("Sentiments towards homosexuals of different societal niches"),
+  h2("The graph below allows you to choose between different variables and see which demographics of people have different views about gay rights issues"),
   
   # Sidebar with a slider input for axis inputs 
   sidebarLayout(
@@ -55,7 +53,7 @@ ui <- fluidPage(
 server <- function(input, output) {
   
   output$scatterplot <- renderPlot({
-      read_rds("data.rds") %>% 
+      read_rds("data1.rds") %>% 
       ggplot(aes_string(x = input$x, y = input$y)) + 
       geom_jitter(alpha = 0.1) +
       xlab("Year") +

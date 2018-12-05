@@ -19,16 +19,11 @@ library(readr)
 
 ```{r message = FALSE, cache = TRUE}
 
-## download.file("http://gss.norc.org/documents/spss/GSS_spss.zip", "GSS_spss.zip", quiet = TRUE)
+download.file("http://gss.norc.org/documents/spss/GSS_spss.zip", "GSS_spss.zip", quiet = TRUE)
 
-## unzip("GSS_spss.zip")
+unzip("GSS_spss.zip")
 
 gss <- read.spss("GSS7216_R4.sav", to.data.frame = TRUE)
-write_rds(gss, "data.rds")
-
-delete.file("GSS7216_R4.sav")
-
-glimpse(gss)
 
 #For this project, I only want to look at the last 30 years, ie. 1988-2018
 gss1 <- gss %>%
@@ -36,34 +31,14 @@ gss1 <- gss %>%
   select(ID, YEAR, AGE, MARITAL, SEX, INCOME, SATCITY, MARHOMO, SPKHOMO, COLHOMO, LIBHOMO, RELIG, LIBTEMP, CONTEMP, MSLMTEMP) %>%
   arrange(ID)
 
-runApp("Final Project")  
+as.numeric(gss1$MARHOMO)
+as.numeric(gss1$SPKHOMO)
+as.numeric(gss1$COLHOMO)
+as.numeric(gss1$LIBHOMO)
 
-ui <- fluidPage(
-  sidebarLayout(
-    sidebarPanel(
-      selectInput(inputID = "y",
-                  label = "Y-axis:",
-                  choices = c("MARHOMO", "COLHOMO", "LIBHOMO"),
-                  selected = "MARHOMO"),
-      selectInput(inputID = "x",
-                  label = "X-axis:",
-                  choices = c("YEAR", "AGE", "MARITAL", "SEX", "INCOME", "SATCITY"),
-                  selected = "YEAR")
-    ),
-    
-    mainPanel(
-      plotOutput(outputId = "scatterplot")
-    )
-  )
-)
+write_rds(gss1, "data1.rds")
 
-server <- function(input, output) {
-  
-  output$scatterplot <- renderPlot({
-    ggplot(data = gss1, aes_string(x = input$x, y = input$y)) +
-      geom_point()
-  })
-}
+runApp("app.r")  
 
-shinyApp(ui = ui, server = server)  
+ 
 ```
