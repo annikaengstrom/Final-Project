@@ -15,6 +15,7 @@ library(foreign)
 library(shiny)
 library(rsconnect)
 library(readr)
+library(forcats)
 ```
 
 ```{r message = FALSE, cache = TRUE}
@@ -25,8 +26,10 @@ unzip("GSS_spss.zip")
 
 gss <- read.spss("GSS7216_R4.sav", to.data.frame = TRUE)
 
-#For this project, I only want to look at the last 30 years, ie. 1988-2018
+#For this project, I only wanted to look at views towards gay rights since the year 2003, as this was the year in which sexual relations between same-sex couples was deemed legal by the Supreme Court. This is widely cited as a turning point in the history of gay rights in the United States, and is very likely to mark a turning point in people's open views on gay rights when responding to surveys such as the General Social Survey. 
 gss1 <- gss %>%
+  filter(YEAR >= 2003) %>%
+  select(ID, YEAR, AGE, MARITAL, SEX, INCOME, MARHOMO, SPKHOMO, COLHOMO, LIBHOMO, RELIG, PARTYID) %>%
   filter(YEAR >= 1988) %>%
   select(ID, YEAR, AGE, MARITAL, SEX, INCOME, SATCITY, MARHOMO, SPKHOMO, COLHOMO, LIBHOMO, RELIG, LIBTEMP, CONTEMP, MSLMTEMP) %>%
   filter(!is.na(MARHOMO)) %>%
@@ -37,11 +40,66 @@ gss1 <- gss %>%
   filter(!is.na(MARITAL)) %>%
   filter(!is.na(INCOME)) %>%
   filter(!is.na(YEAR)) %>%
+  filter(!is.na(AGE)) %>%
   arrange(ID)
+
+gss1$AGE = as.numeric(as.character(gss1$AGE))
+
+gss1 <- gss1 %>%
+  mutate(AGE = case_when(
+    AGE %in% c(18:24) ~ "18-24",
+    AGE %in% c(25:34) ~ "25-34",
+    AGE %in% c(35:44) ~ "35-44",
+    AGE %in% c(45:54) ~ "45-54",
+    AGE %in% c(55:64) ~ "55-64",
+    AGE %in% c(65:120) ~ "65+")) %>%
+  group_by(AGE)
+
+gss1$INCOME <- fct_collapse(gss1$INCOME, 
+                     `<1000` = c("LT $1000"), 
+                     `1000-3999` = c("$1000 TO 2999", "$3000 TO 3999"), 
+                     `4000-5999` = c("$4000 TO 4999", "$5000 TO 5999"), 
+                     `6000-7999` = c("$6000 TO 6999", "$7000 TO 7999"), 
+                     `8000-9999` = c("$8000 TO 9999"), 
+                     `10000-14999` = c("$10000 - 14999"), 
+                     `15000-19999` = c("$15000 - 19999"), 
+                     `20000-24999` = c("$20000 - 24999"), 
+                     `>25000` = c("$25000 OR MORE"))
+
+gss1$MARHOMO <- fct_collapse(gss1$MARHOMO, 
+                     `2` = c("STRONGLY AGREE"), 
+                     `1` = c("AGREE"), 
+                     `0` = c("NEITHER AGREE NOR DISAGREE"), 
+                     `-1` = c("DISAGREE"), 
+                     `-2` = c("STRONGLY DISAGREE"))
+
+gss1$MARHOMO = as.numeric(as.character(gss1$MARHOMO))
+
+gss1$SPKHOMO <- fct_collapse(gss1$SPKHOMO, 
+                     `1` = c("ALLOWED"), 
+                     `-1` = c("NOT ALLOWED"))
+
+gss1$SPKHOMO = as.numeric(as.character(gss1$SPKHOMO))
+
+gss1$COLHOMO <- fct_collapse(gss1$COLHOMO, 
+                     `1` = c("ALLOWED"), 
+                     `-1` = c("NOT ALLOWED"))
+
+gss1$COLHOMO = as.numeric(as.character(gss1$COLHOMO))
+
+gss1$LIBHOMO <- fct_collapse(gss1$LIBHOMO, 
+                     `1` = c("NOT REMOVE"), 
+                     `-1` = c("REMOVE"))
+
+gss1$LIBHOMO = as.numeric(as.character(gss1$LIBHOMO))
+
+gss1 <- gss1 %>%
+  group_by(AGE, INCOME, MARITAL, YEAR, SEX, PARTYID) %>%
+  summarise(MARHOMO = sum(MARHOMO), SPKHOMO = sum(SPKHOMO), COLHOMO = sum(COLHOMO), LIBHOMO = sum(LIBHOMO))
 
 write_rds(gss1, "data1.rds")
 
-runApp("app.r")  
+runApp("app.r")   
 
  
 ```
