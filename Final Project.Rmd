@@ -92,7 +92,7 @@ gss1$LIBHOMO = as.numeric(as.character(gss1$LIBHOMO))
 
 gss1 <- gss1 %>%
   group_by(AGE, INCOME, MARITAL, YEAR, SEX, PARTYID) %>%
-  summarise(MARHOMO = sum(MARHOMO), SPKHOMO = sum(SPKHOMO), COLHOMO = sum(COLHOMO), LIBHOMO = sum(LIBHOMO))
+  summarise(MARHOMO = mean(MARHOMO), SPKHOMO = mean(SPKHOMO), COLHOMO = mean(COLHOMO), LIBHOMO = mean(LIBHOMO))
 
 write_rds(gss1, "data1.rds")
 
