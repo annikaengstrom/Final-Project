@@ -64,11 +64,11 @@ gss1$INCOME <- fct_collapse(gss1$INCOME,
                      `>25000` = c("$25000 OR MORE"))
 
 gss1$MARHOMO <- fct_collapse(gss1$MARHOMO, 
-                     `2` = c("STRONGLY AGREE"), 
-                     `1` = c("AGREE"), 
+                     `1` = c("STRONGLY AGREE"), 
+                     `0.5` = c("AGREE"), 
                      `0` = c("NEITHER AGREE NOR DISAGREE"), 
-                     `-1` = c("DISAGREE"), 
-                     `-2` = c("STRONGLY DISAGREE"))
+                     `-0.5` = c("DISAGREE"), 
+                     `-1` = c("STRONGLY DISAGREE"))
 
 gss1$MARHOMO = as.numeric(as.character(gss1$MARHOMO))
 
@@ -96,7 +96,7 @@ gss1 <- gss1 %>%
 
 write_rds(gss1, "data1.rds")
 
-runApp("app.r")   
+runApp("shiny.r")   
 
  
 ```
