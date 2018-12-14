@@ -18,8 +18,8 @@ gss1 <- readRDS("data1.rds")
 # Define UI for application that draws a bar graph
 ui <- fluidPage(theme = shinytheme("sandstone"), 
                 
-                h1("Sentiments towards homosexuals by different societal niches"),
-                h5("The graph below allows you to choose between different variables and see which demographics of people have different views about gay rights issues."),
+                h1("Opinions on gay rights across the American population"),
+                h5("The graph below allows you to see differences in views about gay rights issues by social demographic, including age, marital status, sex and income."),
                 br(),
                 br(),
                 # Sidebar with an input selection option for the axes
@@ -115,7 +115,7 @@ server <- function(input, output) {
     } else if(input$y == "SPKHOMO"){
       plot_label <- "Statement: Homosexuals should have the right to public speach"
     } else if(input$y == "COLHOMO"){
-      plot_label <- "Statement: Homosexuals should have the right to teach a college or university"
+      plot_label <- "Statement: Homosexuals should have the right to teach in colleges and universities"
     } else if(input$y == "LIBHOMO"){
       plot_label <- "Statement: Books written by homosexual authors should be kept in public libraries, rather than removed"
     }})
