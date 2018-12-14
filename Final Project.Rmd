@@ -37,7 +37,7 @@ gss1 <- gss %>%
   filter(!is.na(SEX)) %>%
   filter(!is.na(MARITAL)) %>%
   filter(!is.na(INCOME)) %>%
-  filter(!is.na(YEAR)) %>%
+  filter(!is.na(AGE)) %>%
   arrange(ID)
 
 gss1$AGE = as.numeric(as.character(gss1$AGE))
