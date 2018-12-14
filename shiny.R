@@ -15,17 +15,17 @@ library(shinythemes)
 library(plotly)
 gss1 <- readRDS("data1.rds")
 
-# Define UI for application that draws a scatterplot
+# Define UI for application that draws a bar graph
 ui <- fluidPage(theme = shinytheme("sandstone"), 
                 
                 h1("Sentiments towards homosexuals by different societal niches"),
                 h5("The graph below allows you to choose between different variables and see which demographics of people have different views about gay rights issues."),
                 br(),
                 br(),
-                # Sidebar with a slider input for axis inputs 
+                # Sidebar with an input selection option for the axes
                 sidebarLayout(
                   sidebarPanel(
-                    
+                   # I chose these demographic details because they gave the most interesting data 
                     selectInput(inputId = "x", 
                                 label = "Choose the characteristic by which you would like dissect the population:",
                                 choices = c("Marital" = "MARITAL", 
@@ -34,7 +34,7 @@ ui <- fluidPage(theme = shinytheme("sandstone"),
                                             "Income" = "INCOME"), 
                                 selected = "AGE"),
                     
-                    # Select variable for y axis
+                    # Select variable for y axis. I have included the four questions included in the GSS dataset. I gave them brief topic names for the selection input, rather than full questions, as these will be evident upon clicking.
                     selectInput(inputId = "y", 
                                 label = "Choose the topic you want to explore within gay rights:",
                                 choices = c("Right to marry" = "MARHOMO", 
@@ -46,7 +46,10 @@ ui <- fluidPage(theme = shinytheme("sandstone"),
                   
                   # Show a plot of the generated distribution
                   mainPanel(
-                    tabsetPanel(type = "tabs",
+# I created separate panels for the graph and some background information / discussion of results. I wanted people not to have a crowded first panel and so I decided to separate it this way
+# rather than by having a reactive paragraph below. 
+# The plot label text ouput is created below, and was originally intended for the ggtitle but I decided it was more aesthetically pleasing to place it here as a tab title.                    
+                     tabsetPanel(type = "tabs",
                                 tabPanel(title = "Plot",
                                          br(),
                                          h4(textOutput(outputId = "plot_label")),
@@ -102,7 +105,9 @@ server <- function(input, output) {
     } else if(input$x == "YEAR"){
       x_label <- "Year"
     }})
-  
+
+#  
+    
   output$plot_label <- reactive({
     req(input$y)
     if(input$y == "MARHOMO"){
@@ -114,21 +119,28 @@ server <- function(input, output) {
     } else if(input$y == "LIBHOMO"){
       plot_label <- "Statement: Books written by homosexual authors should be kept in public libraries, rather than removed"
     }})
+# This output is a barplot that changes the axis labels based on the inputs for x and y as shown above.
+# I ensured that the y axis goes all the way from -1 to +1 in order to make the average levels of acceptance clear.
   
   output$barplot <- renderPlot({
     ggplot(data=gss1, aes_string(x = input$x, y = input$y)) +
       expand_limits(y=c(-1,1)) +
+# By creating a statistical sumary which included the mean, I could show the mean for each reactive column.     
       stat_summary(fun.y = "mean", geom = "bar", fill = "#E7FDFF", color = "#ACACAC") +
       labs(x = x_label(), y = "Average response") +
+# Here I decided to add a label to the positions on the y axis which correspond to varying degrees of agreement with the statement.
+# It allows a more visual representation of the data and people can see what the average response was per demographic. 
+# I wanted a faint font so that it would not visually interfere with the graph too much but still be clear.    
+# Had I not included this, I fear that the numeric measurement would not be immediately clear.    
       geom_hline(yintercept=0, colour="#ACACAC", linetype = "dashed") +
       geom_hline(yintercept=1, colour="#ACACAC", linetype = "dashed") +
-      annotate("text",x=0.3, y=1.05,size=3,label=c('  STRONGLY AGREE'), hjust = 0, colour="#999999") +
+      annotate("text",x=0.3, y=1.05,size=4,label=c('  STRONGLY AGREE'), hjust = 0, colour="#999999") +
       geom_hline(yintercept=-1, colour="#ACACAC", linetype = "dashed") +
-      annotate("text",x=0.3, y=0.55,size=3,label=c('  SOMEWHAT AGREE'), hjust = 0, colour="#999999") +
+      annotate("text",x=0.3, y=0.55,size=4,label=c('  SOMEWHAT AGREE'), hjust = 0, colour="#999999") +
       geom_hline(yintercept=0.5, colour="#ACACAC", linetype = "dashed") +
+      annotate("text",x=0.3, y=-0.45,size=4,label=c('  SOMEWHAT DISAGREE'), hjust = 0, colour="#999999") +
       geom_hline(yintercept=-0.5, colour="#ACACAC", linetype = "dashed") +
-      annotate("text",x=0.3, y=-0.45,size=3,label=c('  SOMEWHAT DISAGREE'), hjust = 0, colour="#999999") +
-      annotate("text",x=0.3, y=-0.95,size=3,label=c('  STRONGLY DISAGREE'), hjust = 0, colour="#999999") +
+      annotate("text",x=0.3, y=-0.95,size=4,label=c('  STRONGLY DISAGREE'), hjust = 0, colour="#999999") +
       theme(plot.title = element_text(color="black", size=20, lineheight = 5),
             axis.title.x = element_text(color="black", size=12, face="bold"),
             axis.title.y = element_text(color="black", size=12, face="bold"))
