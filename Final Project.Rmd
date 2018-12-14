@@ -20,6 +20,8 @@ library(forcats)
 
 ```{r message = FALSE, cache = TRUE}
 
+# Downloading the GSS data from their website
+
 download.file("http://gss.norc.org/documents/spss/GSS_spss.zip", "GSS_spss.zip", quiet = TRUE)
 
 unzip("GSS_spss.zip")
@@ -40,6 +42,8 @@ gss1 <- gss %>%
   filter(!is.na(AGE)) %>%
   arrange(ID)
 
+# The age categories were not in numeric format and so I changed them to numeric format and then revereted them back to characters in bins of ages for the sake of the bar chart.
+
 gss1$AGE = as.numeric(as.character(gss1$AGE))
 
 gss1 <- gss1 %>%
@@ -52,6 +56,8 @@ gss1 <- gss1 %>%
     AGE %in% c(65:120) ~ "65+")) %>%
   group_by(AGE)
 
+# I collapsed some of the income brackets because there were too many brackets for a visually pleasing bar chart. The data was too muddled without collapsing them and so I simply combined a couple of the categories. 
+
 gss1$INCOME <- fct_collapse(gss1$INCOME, 
                      `<1000` = c("LT $1000"), 
                      `1000-3999` = c("$1000 TO 2999", "$3000 TO 3999"), 
@@ -62,6 +68,9 @@ gss1$INCOME <- fct_collapse(gss1$INCOME,
                      `15000-19999` = c("$15000 - 19999"), 
                      `20000-24999` = c("$20000 - 24999"), 
                      `>25000` = c("$25000 OR MORE"))
+
+# By turning the levels of agreement into numbers and then turning those into numeric values instead of vector levels I could calculate averages and present them numerically on a bar chart. 
+# I repeated this with all of the available questions and responses.
 
 gss1$MARHOMO <- fct_collapse(gss1$MARHOMO, 
                      `1` = c("STRONGLY AGREE"), 
@@ -90,9 +99,13 @@ gss1$LIBHOMO <- fct_collapse(gss1$LIBHOMO,
 
 gss1$LIBHOMO = as.numeric(as.character(gss1$LIBHOMO))
 
+# By grouping by demographic info and summarising by question response, I could then calculate the means per demographic and display averages. 
+
 gss1 <- gss1 %>%
   group_by(AGE, INCOME, MARITAL, YEAR, SEX, PARTYID) %>%
   summarise(MARHOMO = mean(MARHOMO), SPKHOMO = mean(SPKHOMO), COLHOMO = mean(COLHOMO), LIBHOMO = mean(LIBHOMO))
+
+#Creating the dataset for the shiny app. 
 
 write_rds(gss1, "data1.rds")
 
